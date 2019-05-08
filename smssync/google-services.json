@@ -41,7 +41,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:101482340714:android:60009a2109c34e65",
         "android_client_info": {
-          "package_name": "org.addhen.smssync.withAnalytics.debug"
+          "package_name": "org.addhen.smssync.debug"
         }
       },
       "oauth_client": [

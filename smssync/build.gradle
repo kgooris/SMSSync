@@ -19,7 +19,7 @@ import org.ajoberstar.gradle.git.release.opinion.Strategies
 import org.ajoberstar.grgit.Grgit
 
 apply plugin: 'com.android.application'
-//apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'org.ajoberstar.release-opinion'
 apply plugin: 'com.github.triplet.play'
 
@@ -52,6 +52,7 @@ def globalConfiguration = rootProject.extensions.getByName("ext")
 
 android {
     compileSdkVersion globalConfiguration.getAt("androidCompileSdkVersion")
+    buildToolsVersion globalConfiguration.getAt("androidBuildToolsVersion")
 
     signingConfigs {
 
@@ -95,7 +96,6 @@ android {
     }
 
     defaultConfig {
-        vectorDrawables.useSupportLibrary = true
         minSdkVersion globalConfiguration.getAt("androidMinSdkVersion")
         targetSdkVersion globalConfiguration.getAt("androidTargetSdkVersion")
         versionCode globalConfiguration.getAt("androidVersionCode")
@@ -131,58 +131,42 @@ android {
         abortOnError false
     }
 
-//    compileOptions {
-//        sourceCompatibility JavaVersion.VERSION_1_8
-//        targetCompatibility JavaVersion.VERSION_1_8
-//    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
-//    android.applicationVariants.all { variant ->
-//        variant.outputs.all { output ->
-//            def outputFile = outputFileName
-//
-//
-//
-//            //if (outputFile != null && outputFile.name.endsWith('.apk')) {
-//                def newName = "newname";
-////                def newName = outputFile.name.replace(outputFile.name,
-////                        "smssync-${variant.name}-v" + defaultConfig.versionName + "-" +
-////                                variant.buildType.name.toUpperCase() +
-////                                ".apk");
-//
-//
-//
-//                outputFileName = new File ("/../../../../../release/" + newName.toLowerCase())
-//                //outputFileName = file("$project.buildDir/apk/" + newName);
-//                if (output.zipAlign) {
-//                    output.zipAlign.outputFile =
-//                            file("$project.buildDir/apk/" + newName.replace("-unaligned", ""));
-//                }
-//            //}
-//        }
-//    }
+    android.applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                def newName = outputFile.name.replace(outputFile.name,
+                        "smssync-${variant.name}-v" + defaultConfig.versionName + "-" +
+                                variant.buildType.name.toUpperCase() +
+                                ".apk");
+
+                output.outputFile = file("$project.buildDir/apk/" + newName);
+                if (output.zipAlign) {
+                    output.zipAlign.outputFile =
+                            file("$project.buildDir/apk/" + newName.replace("-unaligned", ""));
+                }
+            }
+        }
+    }
 
     productFlavors {
-        flavorDimensions "withAnalytics"
+
         withAnalytics {
-            dimension "withAnalytics"
-            applicationIdSuffix ".withAnalytics"
-            versionNameSuffix "-withAnalytics"
             applicationId 'org.addhen.smssync'
         }
 
-//        noAnalytics {
-//            dimension "noAnalytics"
-//            applicationIdSuffix ".noAnalytics"
-//            versionNameSuffix "-noAnalytics"
-//            applicationId 'org.addhen.smssync'
-//        }
-//
-//        internal {
-//            dimension "internal"
-//            applicationIdSuffix ".internal"
-//            versionNameSuffix "-internal"
-//            applicationId 'org.addhen.smssync.internal'
-//        }
+        noAnalytics {
+            applicationId 'org.addhen.smssync'
+        }
+
+        internal {
+            applicationId 'org.addhen.smssync.internal'
+        }
     }
 
     dexOptions {
@@ -198,12 +182,11 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    buildToolsVersion '27.0.3'
 }
 
-//retrolambda {
-//    jvmArgs '-noverify'
-//}
+retrolambda {
+    jvmArgs '-noverify'
+}
 
 release {
     grgit = Grgit.open(dir: '.')
